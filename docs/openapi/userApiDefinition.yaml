@@ -1,0 +1,166 @@
+openapi: 3.0.0
+info:
+  title: User Service
+  description: user service to manage users.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Main User Dev (development) server
+
+paths:
+  /v1/users:
+    $ref: '#/users'
+
+  /v1/users/{userId}:
+    $ref: '#/user'
+    
+  /v1/health:
+    get:
+      summary: Check service health.
+      description: Check service health.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  health:
+                    type: string
+                    enum:
+                      - service is up
+
+components:
+  schemas:
+    UserModel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        password:
+          type: string
+        salt:
+          type: string
+
+users:
+  get:
+    summary: Find users.
+    description: retrieves all users.
+    responses:
+      200:
+        description: users found.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserModel'
+      404:
+        description: no users found.
+      500:
+        description: unexpected error ocurred.
+  post:
+    summary: Create user.
+    description: adds an user.
+    requestBody:
+      description: >
+        **username property must be unique.**
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserModel'
+    responses:
+      201:
+        description: created user.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserModel'
+      400:
+        description: invalid user model.
+      500:
+        description: unexpected error ocurred.
+
+user:
+  get:
+    summary: Find an user.
+    description: retrieves an user.
+    parameters:
+      - name: userId
+        in: path
+        description: user id.
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      200:
+        description: user found.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserModel'
+      400:
+        description: invalid user id.
+      404:
+        description: no user found.
+      500:
+        description: unexpected error ocurred.
+  put:
+    summary: Update an user.
+    description: updates an user.
+    parameters:
+    - name: userId
+      in: path
+      description: user id.
+      required: true
+      schema:
+        type: string
+        format: uuid
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserModel'
+    responses:
+      200:
+        description: updated an user.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserModel'
+      400:
+        description: invalid user id or invalid user model.
+      404:
+        description: no user found.
+      500:
+        description: unexpected error ocurred.
+  delete:
+    summary: Remove an user.
+    description: deletes an user.
+    parameters:
+    - name: userId
+      in: path
+      description: user id.
+      required: true
+      schema:
+        type: string
+        format: uuid
+    responses:
+      200:
+        description: deleted an user.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserModel'
+      400:
+        description: invalid user id.
+      404:
+        description: no user found.
+      500:
+        description: unexpected error ocurred.
